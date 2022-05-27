@@ -25,12 +25,12 @@ const IndexPage: NextPageWithLayout = () => {
   return (
     <>
       <Head>
-        <title>Next starter code</title>
+        <title>Jotai and React Query</title>
       </Head>
 
       <main>
         <Heading as="h1" css={{ mb: "$base" }}>
-          Next Typescript Starter
+          Jotai and React Query
         </Heading>
         <User />
       </main>
