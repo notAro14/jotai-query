@@ -8,20 +8,35 @@ import type { NextPageWithLayout } from "src/types"
 import Heading from "src/shared/heading"
 import Text from "src/shared/text"
 
-const idAtom = atom(1)
-const userAtom = atomWithQuery((get) => ({
-  queryKey: ["users", get(idAtom)],
-  queryFn: async ({ queryKey: [, id] }) => {
-    const res = await fetch(`https://jsonplaceholder.typicode.com/users/${id}`)
-    return res.json()
+interface User {
+  id: number
+  name: string
+  email: string
+}
+
+const usersAtom = atomWithQuery(() => ({
+  queryKey: "users",
+  queryFn: async () => {
+    const res = await fetch("https://jsonplaceholder.typicode.com/users")
+    return res.json() as Promise<User[]>
   },
 }))
+const usersCount = atom((get) => get(usersAtom).length)
+const usersEmails = atom((get) => get(usersAtom).map(({ email }) => email))
 
-const User = () => {
-  const [data] = useAtom(userAtom)
-  return <Text>{data.name}</Text>
+const Users = () => {
+  const [data] = useAtom(usersAtom)
+  return (
+    <>
+      {data.map(({ id, name }) => (
+        <Text key={id}>{name}</Text>
+      ))}
+    </>
+  )
 }
 const IndexPage: NextPageWithLayout = () => {
+  const [count] = useAtom(usersCount)
+  const [emails] = useAtom(usersEmails)
   return (
     <>
       <Head>
@@ -32,7 +47,15 @@ const IndexPage: NextPageWithLayout = () => {
         <Heading as="h1" css={{ mb: "$base" }}>
           Jotai and React Query
         </Heading>
-        <User />
+        <Text>There are {count} users.</Text>
+        <br />
+        <Users />
+        <br />
+        <Text>Their contact emails are</Text>
+        <br />
+        {emails.map((email) => (
+          <Text key={email}>{email}</Text>
+        ))}
       </main>
     </>
   )
